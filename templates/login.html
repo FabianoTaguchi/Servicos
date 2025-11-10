@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Entrar — Ordens de Serviço{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Entrar</h1>
+  <form class="form" method="post" action="{{ url_for('login') }}">
+    <div class="form-row">
+      <label for="username">Usuário</label>
+      <input type="text" id="username" name="username" required />
+    </div>
+    <div class="form-row">
+      <label for="password">Senha</label>
+      <input type="password" id="password" name="password" required />
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="button">Login</button>
+      <a class="button secondary" href="{{ url_for('signup') }}">Criar conta</a>
+    </div>
+  </form>
+  <p class="muted">Informe usuário e senha e clique em Login para acessar a página inicial.</p>
+</section>
+{% endblock %}

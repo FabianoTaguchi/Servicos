@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Minhas Ordens — Ordens de Serviço{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Minhas Ordens de Serviço</h1>
+  <p>Lista de ordens abertas pelo usuário (protótipo visual).</p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cultivar</th>
+        <th>Quantidade</th>
+        <th>Para</th>
+        <th>Criada em</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="5">Você ainda não abriu ordens neste modo front-end.</td></tr>
+    </tbody>
+  </table>
+  <div class="form-actions">
+    <a class="button" href="{{ url_for('ordens') }}">Abrir nova ordem</a>
+  </div>
+</section>
+{% endblock %}

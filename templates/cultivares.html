@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Cultivares — Ordens de Serviço{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Cadastrar Cultivar</h1>
+  <form class="form" method="post" action="#">
+    <div class="form-row">
+      <label for="nome">Nome do cultivar</label>
+      <input type="text" id="nome" name="nome" required />
+    </div>
+    <div class="form-row">
+      <label for="especie">Espécie/Variedade</label>
+      <input type="text" id="especie" name="especie" />
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="button">Salvar Cultivar</button>
+      <button type="reset" class="button secondary">Limpar</button>
+    </div>
+  </form>
+  <p class="muted">Este protótipo é somente visual (sem persistência).</p>
+</section>
+
+<section class="card">
+  <h2>Cultivares cadastrados</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Espécie/Variedade</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="2">Nenhum cultivar cadastrado neste modo front-end.</td></tr>
+    </tbody>
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Abrir Ordem de Serviço — Ordens de Serviço{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Abrir Ordem de Serviço</h1>
+  <form class="form" method="post" action="#">
+    <div class="form-row">
+      <label for="cultivar_id">Cultivar (semente)</label>
+      <select id="cultivar_id" name="cultivar_id" required>
+        <option value="">Selecione...</option>
+        <option value="1">Exemplo Cultivar A</option>
+        <option value="2">Exemplo Cultivar B</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="quantidade">Número de sementes</label>
+      <input type="number" id="quantidade" name="quantidade" min="1" required />
+    </div>
+    <div class="form-row">
+      <label for="data_para">Data desejada</label>
+      <input type="date" id="data_para" name="data_para" required />
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="button">Abrir Ordem</button>
+      <a class="button secondary" href="{{ url_for('ordens_minhas') }}">Ver Minhas Ordens</a>
+    </div>
+  </form>
+  <p class="muted">Protótipo visual: sem envio ou armazenamento.</p>
+</section>
+
+<section class="card">
+  <h2>Últimas ordens abertas</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Usuário</th>
+        <th>Cultivar</th>
+        <th>Quantidade</th>
+        <th>Para</th>
+        <th>Criada em</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="5">Nenhuma ordem aberta neste modo front-end.</td></tr>
+    </tbody>
+  </table>
+</section>
+{% endblock %}

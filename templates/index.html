@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Início — Ordens de Serviço{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Controle de Ordens de Serviço</h1>
+  <p>Use o menu para cadastrar cultivares, abrir ordens e visualizar suas ordens.</p>
+  <div class="grid">
+    <a class="button" href="{{ url_for('cultivares') }}">Cadastrar Cultivares</a>
+    <a class="button" href="{{ url_for('ordens') }}">Abrir Ordem de Serviço</a>
+    <a class="button" href="{{ url_for('ordens_minhas') }}">Ver Minhas Ordens</a>
+    <a class="button" href="{{ url_for('ordens_todas') }}">Ver Todas as Ordens</a>
+  </div>
+</section>
+{% endblock %}
