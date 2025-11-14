@@ -16,9 +16,24 @@
           <li><a href="{{ url_for('ordens_minhas') }}">Minhas Ordens</a></li>
           <li><a href="{{ url_for('ordens_todas') }}">Todas Ordens</a></li>
         </ul>
+        <div class="user">
+          {% if session.get('user_id') %}
+            <span>Olá, {{ session.get('username') }}</span>
+            <a href="{{ url_for('logout') }}" class="button secondary" style="margin-left:8px;">Sair</a>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="button secondary">Entrar</a>
+          {% endif %}
+        </div>
       </div>
     </nav>
     <main class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
       {% block content %}{% endblock %}
     </main>
   </body>
