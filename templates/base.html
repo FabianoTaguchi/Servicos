@@ -18,7 +18,7 @@
         </ul>
         <div class="user">
           {% if session.get('user_id') %}
-            <span>Olá, {{ session.get('username') }}</span>
+            <span><strong>Olá, {{ session.get('username') }}</strong></span>
             <a href="{{ url_for('logout') }}" class="button secondary" style="margin-left:8px;">Sair</a>
           {% else %}
             <a href="{{ url_for('login') }}" class="button secondary">Entrar</a>
@@ -36,5 +36,6 @@
       {% endwith %}
       {% block content %}{% endblock %}
     </main>
+    <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
   </body>
 </html>

@@ -3,13 +3,14 @@
 {% block content %}
 <section class="card">
   <h1>Abrir Ordem de Serviço</h1>
-  <form class="form" method="post" action="#">
+  <form class="form" method="post" action="{{ url_for('ordens') }}">
     <div class="form-row">
       <label for="cultivar_id">Cultivar (semente)</label>
       <select id="cultivar_id" name="cultivar_id" required>
         <option value="">Selecione...</option>
-        <option value="1">Exemplo Cultivar A</option>
-        <option value="2">Exemplo Cultivar B</option>
+        {% for c in cultivares %}
+          <option value="{{ c.id }}">{{ c.nome }}{% if c.especie %} - {{ c.especie }}{% endif %}</option>
+        {% endfor %}
       </select>
     </div>
     <div class="form-row">
@@ -17,32 +18,14 @@
       <input type="number" id="quantidade" name="quantidade" min="1" required />
     </div>
     <div class="form-row">
-      <label for="data_para">Data desejada</label>
-      <input type="date" id="data_para" name="data_para" required />
+      <label for="observacoes">Observações</label>
+      <textarea id="observacoes" name="observacoes" rows="3"></textarea>
     </div>
     <div class="form-actions">
       <button type="submit" class="button">Abrir Ordem</button>
       <a class="button secondary" href="{{ url_for('ordens_minhas') }}">Ver Minhas Ordens</a>
     </div>
   </form>
-  <p class="muted">Protótipo visual: sem envio ou armazenamento.</p>
-</section>
-
-<section class="card">
-  <h2>Últimas ordens abertas</h2>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Usuário</th>
-        <th>Cultivar</th>
-        <th>Quantidade</th>
-        <th>Para</th>
-        <th>Criada em</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="5">Nenhuma ordem aberta neste modo front-end.</td></tr>
-    </tbody>
-  </table>
+  <p class="muted">Informe os dados e clique em Abrir Ordem.</p>
 </section>
 {% endblock %}

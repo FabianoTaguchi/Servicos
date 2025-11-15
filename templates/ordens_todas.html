@@ -3,7 +3,7 @@
 {% block content %}
 <section class="card">
   <h1>Todas as Ordens de Serviço</h1>
-  <p>Visualização geral de ordens abertas por todos os usuários (protótipo visual).</p>
+  <p>Visualização geral de ordens abertas por todos os usuários.</p>
   <table class="table">
     <thead>
       <tr>
@@ -11,12 +11,25 @@
         <th>Usuário</th>
         <th>Cultivar</th>
         <th>Quantidade</th>
-        <th>Para</th>
+        <th>Observações</th>
         <th>Criada em</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td colspan="6">Nenhuma ordem aberta neste modo front-end.</td></tr>
+      {% if ordens and ordens|length > 0 %}
+        {% for o in ordens %}
+          <tr{% if session.get('user_id') == o.solicitante_id %} class="highlight-self"{% endif %}>
+            <td>{{ o.id }}</td>
+            <td>{{ o.solicitante.username }}</td>
+            <td>{{ o.cultivar.nome }}{% if o.cultivar.especie %} - {{ o.cultivar.especie }}{% endif %}</td>
+            <td>{{ o.quantidade or '-' }}</td>
+            <td>{{ o.descricao or '-' }}</td>
+            <td>{{ o.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="6">Nenhuma ordem aberta.</td></tr>
+      {% endif %}
     </tbody>
   </table>
 </section>

@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS `cultivares` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `nome` VARCHAR(120) NOT NULL,
   `especie` VARCHAR(120),
-  `descricao` TEXT,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_cultivares_nome` (`nome`)
@@ -24,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `ordens` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `titulo` VARCHAR(200) NOT NULL,
   `descricao` TEXT,
+  `quantidade` INT,
   `status` VARCHAR(20) DEFAULT 'aberta',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -37,9 +37,11 @@ class OrdemServico(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     titulo = db.Column(db.String(200), nullable=False)
     descricao = db.Column(db.Text)
+    quantidade = db.Column(db.Integer)
     status = db.Column(db.String(20), default='aberta')
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+    # Relacionamento com as tabelas Cultivar e Solicitante
     solicitante_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     cultivar_id = db.Column(db.Integer, db.ForeignKey('cultivares.id'))
     solicitante = db.relationship('User', back_populates='ordens')
@@ -81,20 +83,73 @@ def cultivares():
     lista = Cultivar.query.order_by(Cultivar.nome.asc()).all()
     return render_template('cultivares.html', cultivares=lista)
 
-
-@app.route('/ordens')
+# rota que gera as ordens
+@app.route('/ordens', methods=['GET', 'POST'])
 def ordens():
-    return render_template('ordens.html')
+    # Garante que o usuário esteja autenticado antes de acessar a página
+    if not session.get('user_id'):
+        return redirect(url_for('login'))
 
+    # Quando o método for POST, processa o envio do formulário de abertura de ordem
+    if request.method == 'POST':
+        # Recupera o cultivar escolhido no formulário
+        cultivar_id = request.form.get('cultivar_id')
+        # Valida se um cultivar foi selecionado
+        if not cultivar_id:
+            flash('Selecione um cultivar', 'warning')
+            return redirect(url_for('ordens'))
 
+        # Busca o cultivar no banco pelo ID informado
+        c = Cultivar.query.get(int(cultivar_id))
+        if not c:
+            flash('Cultivar inválido', 'danger')
+            return redirect(url_for('ordens'))
+
+        # Lê a quantidade do formulário e tenta converter para inteiro
+        quantidade_raw = request.form.get('quantidade')
+        observacoes = request.form.get('observacoes', '').strip() or None
+        try:
+            quantidade = int(quantidade_raw) if quantidade_raw else None
+        except ValueError:
+            quantidade = None
+
+        # Define o título usando a concatenação "nome + espécie" quando a espécie existir
+        titulo = f"Ordem para {c.nome} - {c.especie}" if c.especie else f"Ordem para {c.nome}"
+
+        # Cria e persiste a ordem relacionando solicitante e cultivar
+        ordem = OrdemServico(
+            titulo=titulo,
+            descricao=observacoes,
+            quantidade=quantidade,
+            solicitante_id=session['user_id'],
+            cultivar_id=c.id,
+        )
+        db.session.add(ordem)
+        db.session.commit()
+
+        # Exibe mensagem de sucesso e redireciona para evitar reenvio do formulário
+        flash('Ordem criada com sucesso', 'success')
+        return redirect(url_for('ordens'))
+
+    # Em GET, carrega os cultivares para popular o select do formulário
+    cultivares = Cultivar.query.order_by(Cultivar.nome.asc()).all()
+    # Renderiza a página de abertura de ordens
+    ultimas = OrdemServico.query.order_by(OrdemServico.created_at.desc()).limit(10).all()
+    return render_template('ordens.html', cultivares=cultivares, ultimas=ultimas)
+
+# Exibe apenas as rotas criadas pelo usuário que está logado
 @app.route('/ordens/minhas')
 def ordens_minhas():
-    return render_template('ordens_minhas.html')
+    if not session.get('user_id'):
+        return redirect(url_for('login'))
+    minhas = OrdemServico.query.filter_by(solicitante_id=session['user_id']).order_by(OrdemServico.created_at.desc()).all()
+    return render_template('ordens_minhas.html', ordens=minhas)
 
-
+# Exibe as todas as ordens geradas, e classificadas em ordem crescente de id
 @app.route('/ordens/todas')
 def ordens_todas():
-    return render_template('ordens_todas.html')
+    todas = OrdemServico.query.order_by(OrdemServico.id.asc()).all()
+    return render_template('ordens_todas.html', ordens=todas)
 
 # Cadastro do usuário
 @app.route('/signup', methods=['GET', 'POST'])
