@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(80) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
+  `role` VARCHAR(20) DEFAULT 'solicitante',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_user_username` (`username`)
@@ -15,8 +16,7 @@ CREATE TABLE IF NOT EXISTS `cultivares` (
   `nome` VARCHAR(120) NOT NULL,
   `especie` VARCHAR(120),
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_cultivares_nome` (`nome`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `ordens` (
@@ -24,6 +24,9 @@ CREATE TABLE IF NOT EXISTS `ordens` (
   `titulo` VARCHAR(200) NOT NULL,
   `descricao` TEXT,
   `quantidade` INT,
+  `sla` TEXT,
+  `data_entrega` DATE,
+  `data_finalizacao` DATETIME,
   `status` VARCHAR(20) DEFAULT 'aberta',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

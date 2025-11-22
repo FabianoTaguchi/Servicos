@@ -2,8 +2,7 @@
 {% block title %}Todas as Ordens — Ordens de Serviço{% endblock %}
 {% block content %}
 <section class="card">
-  <h1>Todas as Ordens de Serviço</h1>
-  <p>Visualização geral de ordens abertas por todos os usuários.</p>
+  <h1>Chamados abertos</h1>
   <table class="table">
     <thead>
       <tr>
@@ -13,11 +12,12 @@
         <th>Quantidade</th>
         <th>Observações</th>
         <th>Criada em</th>
+        <th>Resolvido</th>
       </tr>
     </thead>
     <tbody>
-      {% if ordens and ordens|length > 0 %}
-        {% for o in ordens %}
+      {% if abertos and abertos|length > 0 %}
+        {% for o in abertos %}
           <tr{% if session.get('user_id') == o.solicitante_id %} class="highlight-self"{% endif %}>
             <td>{{ o.id }}</td>
             <td>{{ o.solicitante.username }}</td>
@@ -25,10 +25,51 @@
             <td>{{ o.quantidade or '-' }}</td>
             <td>{{ o.descricao or '-' }}</td>
             <td>{{ o.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>
+              {% if session.get('role') == 'operador' or session.get('username') == 'adm' %}
+                <form method="post" action="{{ url_for('ordem_finalizar', ordem_id=o.id) }}">
+                  <button type="submit" class="button">Finalizar</button>
+                </form>
+              {% else %}-{% endif %}
+            </td>
           </tr>
         {% endfor %}
       {% else %}
-        <tr><td colspan="6">Nenhuma ordem aberta.</td></tr>
+        <tr><td colspan="7">Nenhum chamado aberto.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Chamados finalizados</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Usuário</th>
+        <th>Cultivar</th>
+        <th>Quantidade</th>
+        <th>Observações</th>
+        <th>Criada em</th>
+        <th>Finalizado em</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if finalizados and finalizados|length > 0 %}
+        {% for o in finalizados %}
+          <tr>
+            <td>{{ o.id }}</td>
+            <td>{{ o.solicitante.username }}</td>
+            <td>{{ o.cultivar.nome }}{% if o.cultivar.especie %} - {{ o.cultivar.especie }}{% endif %}</td>
+            <td>{{ o.quantidade or '-' }}</td>
+            <td>{{ o.descricao or '-' }}</td>
+            <td>{{ o.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>{{ o.data_finalizacao.strftime('%d/%m/%Y %H:%M') if o.data_finalizacao else '-' }}</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="7">Nenhum chamado finalizado.</td></tr>
       {% endif %}
     </tbody>
   </table>

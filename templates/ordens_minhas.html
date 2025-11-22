@@ -2,8 +2,7 @@
 {% block title %}Minhas Ordens — Ordens de Serviço{% endblock %}
 {% block content %}
 <section class="card">
-  <h1>Minhas Ordens de Serviço</h1>
-  <p>Lista de ordens abertas pelo usuário.</p>
+  <h1>Chamados abertos</h1>
   <table class="table">
     <thead>
       <tr>
@@ -15,8 +14,8 @@
       </tr>
     </thead>
     <tbody>
-      {% if ordens and ordens|length > 0 %}
-        {% for o in ordens %}
+      {% if abertos and abertos|length > 0 %}
+        {% for o in abertos %}
           <tr>
             <td>{{ o.id }}</td>
             <td>{{ o.cultivar.nome }}{% if o.cultivar.especie %} - {{ o.cultivar.especie }}{% endif %}</td>
@@ -26,7 +25,39 @@
           </tr>
         {% endfor %}
       {% else %}
-        <tr><td colspan="5">Você ainda não abriu ordens.</td></tr>
+        <tr><td colspan="5">Nenhum chamado aberto.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Chamados finalizados</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cultivar</th>
+        <th>Quantidade</th>
+        <th>Observações</th>
+        <th>Criada em</th>
+        <th>Finalizado em</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if finalizados and finalizados|length > 0 %}
+        {% for o in finalizados %}
+          <tr>
+            <td>{{ o.id }}</td>
+            <td>{{ o.cultivar.nome }}{% if o.cultivar.especie %} - {{ o.cultivar.especie }}{% endif %}</td>
+            <td>{{ o.quantidade or '-' }}</td>
+            <td>{{ o.descricao or '-' }}</td>
+            <td>{{ o.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>{{ o.data_finalizacao.strftime('%d/%m/%Y %H:%M') if o.data_finalizacao else '-' }}</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="6">Nenhum chamado finalizado.</td></tr>
       {% endif %}
     </tbody>
   </table>

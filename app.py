@@ -1,5 +1,6 @@
 # Importação das bibliotecas a serem utilizadas
 import os
+import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 
@@ -18,6 +19,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), default='solicitante')
     created_at = db.Column(db.DateTime, default=db.func.now())
     ordens = db.relationship('OrdemServico', back_populates='solicitante')
 
@@ -38,6 +40,9 @@ class OrdemServico(db.Model):
     titulo = db.Column(db.String(200), nullable=False)
     descricao = db.Column(db.Text)
     quantidade = db.Column(db.Integer)
+    sla = db.Column(db.Text)
+    data_entrega = db.Column(db.Date)
+    data_finalizacao = db.Column(db.DateTime)
     status = db.Column(db.String(20), default='aberta')
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
@@ -57,6 +62,7 @@ def login():
         if user and user.password == password:
             session['user_id'] = user.id
             session['username'] = user.username
+            session['role'] = getattr(user, 'role', None)
             return redirect(url_for('index'))
         flash('Credenciais inválidas', 'danger')
     return render_template('login.html')
@@ -69,6 +75,9 @@ def index():
 # Rota que cadastra o cultivar
 @app.route('/cultivares', methods=['GET', 'POST'])
 def cultivares():
+    if not (session.get('username') == 'adm' or session.get('role') == 'operador'):
+        flash('Acesso restrito a administradores', 'danger')
+        return redirect(url_for('index'))
     if request.method == 'POST':
         # Recupera os dados do formulário
         nome = request.form.get('nome', '').strip()
@@ -83,7 +92,7 @@ def cultivares():
     lista = Cultivar.query.order_by(Cultivar.nome.asc()).all()
     return render_template('cultivares.html', cultivares=lista)
 
-# rota que gera as ordens
+# Rota que gera as ordens
 @app.route('/ordens', methods=['GET', 'POST'])
 def ordens():
     # Garante que o usuário esteja autenticado antes de acessar a página
@@ -108,10 +117,16 @@ def ordens():
         # Lê a quantidade do formulário e tenta converter para inteiro
         quantidade_raw = request.form.get('quantidade')
         observacoes = request.form.get('observacoes', '').strip() or None
+        sla = request.form.get('sla', '').strip() or None
+        data_entrega_raw = request.form.get('data_entrega')
         try:
             quantidade = int(quantidade_raw) if quantidade_raw else None
         except ValueError:
             quantidade = None
+        try:
+            data_entrega = datetime.datetime.strptime(data_entrega_raw, '%Y-%m-%d').date() if data_entrega_raw else None
+        except ValueError:
+            data_entrega = None
 
         # Define o título usando a concatenação "nome + espécie" quando a espécie existir
         titulo = f"Ordem para {c.nome} - {c.especie}" if c.especie else f"Ordem para {c.nome}"
@@ -121,6 +136,8 @@ def ordens():
             titulo=titulo,
             descricao=observacoes,
             quantidade=quantidade,
+            sla=sla,
+            data_entrega=data_entrega,
             solicitante_id=session['user_id'],
             cultivar_id=c.id,
         )
@@ -142,14 +159,30 @@ def ordens():
 def ordens_minhas():
     if not session.get('user_id'):
         return redirect(url_for('login'))
-    minhas = OrdemServico.query.filter_by(solicitante_id=session['user_id']).order_by(OrdemServico.created_at.desc()).all()
-    return render_template('ordens_minhas.html', ordens=minhas)
+    abertos = OrdemServico.query.filter_by(solicitante_id=session['user_id']).filter(OrdemServico.status != 'finalizado').order_by(OrdemServico.id.asc()).all()
+    finalizados = OrdemServico.query.filter_by(solicitante_id=session['user_id'], status='finalizado').order_by(OrdemServico.id.asc()).all()
+    return render_template('ordens_minhas.html', abertos=abertos, finalizados=finalizados)
 
 # Exibe as todas as ordens geradas, e classificadas em ordem crescente de id
 @app.route('/ordens/todas')
 def ordens_todas():
-    todas = OrdemServico.query.order_by(OrdemServico.id.asc()).all()
-    return render_template('ordens_todas.html', ordens=todas)
+    abertos = OrdemServico.query.filter(OrdemServico.status != 'finalizado').order_by(OrdemServico.id.asc()).all()
+    finalizados = OrdemServico.query.filter_by(status='finalizado').order_by(OrdemServico.id.asc()).all()
+    return render_template('ordens_todas.html', abertos=abertos, finalizados=finalizados)
+
+# Rota que permite a finalização de uma ordem
+@app.route('/ordens/finalizar/<int:ordem_id>', methods=['POST'])
+def ordem_finalizar(ordem_id):
+    if not (session.get('username') == 'adm' or session.get('role') == 'operador'):
+        flash('Ação restrita ao operador', 'danger')
+        return redirect(url_for('ordens_todas'))
+    # Recupera o id 
+    o = OrdemServico.query.get_or_404(ordem_id)
+    o.status = 'finalizado'
+    o.data_finalizacao = db.func.now()
+    db.session.commit()
+    flash('Ordem marcada como finalizada', 'success')
+    return redirect(url_for('ordens_todas'))
 
 # Cadastro do usuário
 @app.route('/signup', methods=['GET', 'POST'])
@@ -157,13 +190,15 @@ def signup():
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
+        role = request.form.get('role', 'solicitante').strip().lower()
+        role = role if role in ('operador', 'solicitante') else 'solicitante'
         if not username or not password:
             flash('Informe usuário e senha', 'warning')
             return render_template('signup.html')
         if User.query.filter_by(username=username).first():
             flash('Usuário já existe', 'warning')
             return render_template('signup.html')
-        user = User(username=username, password=password)
+        user = User(username=username, password=password, role=role)
         db.session.add(user)
         db.session.commit()
         flash('Cadastro realizado, faça login', 'success')

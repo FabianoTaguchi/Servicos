@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Criar Conta — Ordens de Serviço{% endblock %}
+{% block body_class %}theme-signup{% endblock %}
+{% block nav %}{% endblock %}
 {% block content %}
 <section class="card">
   <h1>Criar Conta</h1>
@@ -11,6 +13,13 @@
     <div class="form-row">
       <label for="password">Senha</label>
       <input type="password" id="password" name="password" required />
+    </div>
+    <div class="form-row">
+      <label for="role">Perfil</label>
+      <select id="role" name="role" required>
+        <option value="solicitante">Solicitante</option>
+        <option value="operador">Operador</option>
+      </select>
     </div>
     <div class="form-actions">
       <button type="submit" class="button">Criar conta</button>

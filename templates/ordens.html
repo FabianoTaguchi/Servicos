@@ -21,6 +21,14 @@
       <label for="observacoes">Observações</label>
       <textarea id="observacoes" name="observacoes" rows="3"></textarea>
     </div>
+    <div class="form-row">
+      <label for="data_entrega">Data de entrega</label>
+      <input type="date" id="data_entrega" name="data_entrega" />
+    </div>
+    <div class="form-row">
+      <label for="sla">SLA</label>
+      <textarea id="sla" name="sla" rows="2"></textarea>
+    </div>
     <div class="form-actions">
       <button type="submit" class="button">Abrir Ordem</button>
       <a class="button secondary" href="{{ url_for('ordens_minhas') }}">Ver Minhas Ordens</a>

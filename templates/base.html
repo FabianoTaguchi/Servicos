@@ -6,15 +6,21 @@
     <title>{% block title %}Ordens de Serviço{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/styles.css') }}" />
   </head>
-  <body>
+  <body class="{% block body_class %}{% endblock %}">
+    {% block nav %}
     <nav class="navbar">
       <div class="container">
         <div class="brand"><a href="{{ url_for('index') }}" style="color:inherit;text-decoration:none;">Ordens de Serviço</a></div>
         <ul class="menu">
-          <li><a href="{{ url_for('cultivares') }}">Cultivares</a></li>
-          <li><a href="{{ url_for('ordens') }}">Abrir Ordem</a></li>
-          <li><a href="{{ url_for('ordens_minhas') }}">Minhas Ordens</a></li>
-          <li><a href="{{ url_for('ordens_todas') }}">Todas Ordens</a></li>
+          <!-- Verificar se a sessão logada é de um usuário do tipo operador -->
+          {% if session.get('role') == 'operador'%}
+            <li><a href="{{ url_for('cultivares') }}">Cadastrar Cultivares</a></li>
+            <li><a href="{{ url_for('ordens_todas') }}">Todas Ordens</a></li>
+          <!-- Verificar se a sessão logada é de um usuário do tipo solicitante -->
+          {% elif session.get('role') == 'solicitante' %}
+            <li><a href="{{ url_for('ordens') }}">Abrir Ordem</a></li>
+            <li><a href="{{ url_for('ordens_minhas') }}">Minhas Ordens</a></li>
+          {% endif %}
         </ul>
         <div class="user">
           {% if session.get('user_id') %}
@@ -26,6 +32,7 @@
         </div>
       </div>
     </nav>
+    {% endblock %}
     <main class="container">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
